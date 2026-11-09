@@ -1,0 +1,765 @@
+<title>採用適性診断</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* Layout: a narrow single column for candidates; list plus detail panes for the hiring team. */
+:root {
+  --bg: #f2f5f6;
+  --surface: #ffffff;
+  --surface-2: #e9eef0;
+  --fg: #16202a;
+  --muted: #55626d;
+  --line: #d6dde1;
+  --accent: #0b6e78;
+  --accent-ink: #ffffff;
+  --accent-soft: #d9eced;
+  --target: #b45309;
+  --good: #166534;
+  --warn: #92400e;
+  --danger: #b42318;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171b; --surface: #192126; --surface-2: #222c32; --fg: #e6ecef; --muted: #9aa8b2;
+    --line: #2d3940; --accent: #4fb3be; --accent-ink: #082126; --accent-soft: #1b3a3f;
+    --target: #f0a35e; --good: #6fcf97; --warn: #f0b27a; --danger: #ff8a80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171b; --surface: #192126; --surface-2: #222c32; --fg: #e6ecef; --muted: #9aa8b2;
+  --line: #2d3940; --accent: #4fb3be; --accent-ink: #082126; --accent-soft: #1b3a3f;
+  --target: #f0a35e; --good: #6fcf97; --warn: #f0b27a; --danger: #ff8a80; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.75;
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.35; margin: 0; text-wrap: balance; }
+h1 { font-size: 24px; font-weight: 900; }
+h2 { font-size: 19px; font-weight: 700; }
+h3 { font-size: 15px; font-weight: 700; }
+p { margin: 0; }
+button, input, textarea { font: inherit; color: inherit; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.wrap { width: 100%; max-width: 760px; margin-inline: auto; }
+.wrap.wide { max-width: 1120px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.stack-sm { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.row.between { justify-content: space-between; }
+.grow { flex: 1 1 0; min-width: 0; }
+
+.topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.brand { font-family: var(--font-display); font-weight: 900; font-size: 15px; letter-spacing: .04em; display: flex; align-items: center; gap: 10px; }
+.brand i { width: 14px; height: 14px; background: var(--accent); display: inline-block; border-radius: 2px; transform: rotate(45deg); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 22px; }
+.card.flat { background: transparent; border-style: dashed; }
+
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  padding: 9px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; min-height: 42px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.danger { color: var(--danger); }
+.btn.quiet { border-color: transparent; background: transparent; color: var(--muted); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-weight: 700; font-size: 14px; }
+.input { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 10px 12px; min-height: 44px; width: 100%; }
+.input:focus-visible { outline-offset: 0; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: transparent; padding: 8px 16px; cursor: pointer; font-weight: 700; color: var(--muted); min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+
+.chip { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.chip.accent { background: var(--accent-soft); color: var(--accent); }
+.chip.warn { background: transparent; border: 1px solid var(--target); color: var(--target); }
+
+.notice { border-left: 3px solid var(--target); background: var(--surface-2); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 13px; }
+
+/* progress */
+.progress { display: flex; flex-direction: column; gap: 6px; }
+.progress .track { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.progress .fill { height: 100%; background: var(--accent); transition: width .25s; }
+.phases { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.phases b { color: var(--fg); }
+.timer { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 20px; }
+.timer.low { color: var(--danger); }
+
+/* questions */
+.q { padding-block: 18px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.q:first-child { border-top: 0; padding-top: 0; }
+.q-text { font-size: 16px; white-space: pre-line; }
+.q-tag { font-size: 12px; color: var(--muted); font-family: var(--font-data); }
+.scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; max-width: 460px; }
+.scale input, .opt input { position: absolute; opacity: 0; pointer-events: none; }
+.scale label {
+  border: 1px solid var(--line); border-radius: 6px; min-height: 44px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-family: var(--font-data); font-weight: 700; background: var(--surface);
+}
+.scale label:hover { border-color: var(--accent); }
+.scale input:checked + label { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.scale input:focus-visible + label, .opt input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
+.scale-ends { display: flex; justify-content: space-between; max-width: 460px; font-size: 12px; color: var(--muted); }
+.opts { display: grid; gap: 8px; }
+.opt { position: relative; }
+.opt label { display: block; border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; cursor: pointer; background: var(--surface); }
+.opt label:hover { border-color: var(--accent); }
+.opt input:checked + label { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 18px; }
+
+/* admin */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.tabs button { border: 0; background: transparent; padding: 10px 16px; font-weight: 700; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; min-height: 44px; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--surface-2); }
+tbody tr[aria-selected="true"] td { background: var(--accent-soft); }
+td.r, th.r { text-align: right; }
+.stat { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-weight: 700; }
+.fit-good { color: var(--good); } .fit-mid { color: var(--warn); } .fit-low { color: var(--danger); }
+
+.bars { display: flex; flex-direction: column; gap: 14px; }
+.bar-head { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.meter { position: relative; height: 10px; background: var(--surface-2); border-radius: 5px; margin-top: 6px; }
+.meter .v { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 5px; }
+.meter .t { position: absolute; top: -4px; bottom: -4px; width: 3px; background: var(--target); border-radius: 1px; transform: translateX(-1px); }
+.meter-ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 8px; border-radius: 2px; margin-right: 6px; background: var(--accent); }
+.legend i.t { width: 3px; height: 12px; background: var(--target); border-radius: 1px; vertical-align: -2px; }
+
+.slider-row { display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 12px; align-items: center; }
+input[type="range"] { width: 100%; accent-color: var(--accent); min-height: 32px; }
+
+.empty { text-align: center; padding: 36px 16px; color: var(--muted); }
+.empty h3 { color: var(--fg); margin-bottom: 6px; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 6px; font-size: 14px; max-width: calc(100% - 32px); z-index: 10; }
+@media (prefers-reduced-motion: reduce) { .progress .fill { transition: none; } }
+
+</style>
+<div id="app"></div>
+<script>
+window.DATA = {
+  tracks: {
+    shinsotsu: { label: "新卒採用", short: "新卒" },
+    chuto: { label: "中途採用", short: "中途" }
+  },
+  likert: ["当てはまらない", "あまり当てはまらない", "どちらとも言えない", "やや当てはまる", "当てはまる"],
+
+  personalityDims: [
+    { k: "E", name: "外向性", lo: "内省的", hi: "社交的" },
+    { k: "A", name: "協調性", lo: "主張重視", hi: "調和重視" },
+    { k: "C", name: "誠実性", lo: "柔軟・即興", hi: "計画的・堅実" },
+    { k: "N", name: "情緒安定性", lo: "敏感", hi: "安定" },
+    { k: "O", name: "開放性", lo: "慣習重視", hi: "新規探索" }
+  ],
+  personality: [
+    { d: "E", t: "人と一緒にいると、気楽に過ごせる。" },
+    { d: "E", t: "自分から会話を始める。" },
+    { d: "E", t: "あまり多くを話さない。", r: 1 },
+    { d: "E", t: "目立たないよう、後ろに控えていることが多い。", r: 1 },
+    { d: "A", t: "人に興味がある。" },
+    { d: "A", t: "他の人の気持ちに共感する。" },
+    { d: "A", t: "他の人のことを、あまり気にかけない。", r: 1 },
+    { d: "A", t: "他の人の悩みごとには、関心がない。", r: 1 },
+    { d: "C", t: "何事にも、いつも前もって準備している。" },
+    { d: "C", t: "細かい点によく注意を払う。" },
+    { d: "C", t: "物を元の場所に戻し忘れることがよくある。", r: 1 },
+    { d: "C", t: "自分の務めを怠けてしまう。", r: 1 },
+    { d: "N", t: "たいていの場合、リラックスしている。" },
+    { d: "N", t: "ストレスを感じやすい。", r: 1 },
+    { d: "N", t: "いろいろなことを心配してしまう。", r: 1 },
+    { d: "N", t: "すぐにイライラする。", r: 1 },
+    { d: "O", t: "想像力が豊かだ。" },
+    { d: "O", t: "アイデアにあふれている。" },
+    { d: "O", t: "抽象的な考え方を理解するのが難しい。", r: 1 },
+    { d: "O", t: "抽象的な考え方には興味がない。", r: 1 }
+  ],
+
+  cultureDims: {
+    common: [
+      { k: "challenge", name: "挑戦志向", note: "前例のない仕事に自分から取り組む傾向" },
+      { k: "team", name: "チーム協働", note: "個人の成果より、チームの成果を優先する傾向" },
+      { k: "speed", name: "スピード重視", note: "完成度より、早く出して改善する進め方を好む傾向" },
+      { k: "autonomy", name: "自律・裁量", note: "指示を待たず、自分で判断して進めたい傾向" },
+      { k: "growth", name: "成長・学習意欲", note: "継続的な学習とフィードバックを歓迎する傾向" },
+      { k: "customer", name: "顧客・社会志向", note: "顧客や社会への貢献にやりがいを感じる傾向" }
+    ],
+    shinsotsu: [{ k: "basics", name: "基礎習得", note: "指導を受け入れ、基礎から身につけようとする傾向" }],
+    chuto: [{ k: "adapt", name: "環境適応", note: "新しい職場のやり方に柔軟に合わせる傾向" }]
+  },
+  culture: {
+    common: [
+      { d: "challenge", t: "前例のない仕事でも、自分から手を挙げて引き受けたい。" },
+      { d: "challenge", t: "失敗するリスクがあっても、新しいやり方を試すほうに価値がある。" },
+      { d: "challenge", t: "確実に成果が出る方法を選ぶほうが、仕事では大切だ。", r: 1 },
+      { d: "team", t: "個人の成果より、チーム全体の成果を優先したい。" },
+      { d: "team", t: "仕事は、周囲と相談しながら進めるほうがうまくいく。" },
+      { d: "team", t: "仕事は、基本的に自分一人のやり方で進めたい。", r: 1 },
+      { d: "speed", t: "完璧でなくても、早く形にして見せ、そこから改善したい。" },
+      { d: "speed", t: "八割の出来でも、早めに共有するほうがよいと思う。" },
+      { d: "speed", t: "時間がかかっても、確認を重ねて品質をそろえたい。", r: 1 },
+      { d: "autonomy", t: "指示を待たず、自分で判断して仕事を進めたい。" },
+      { d: "autonomy", t: "目標さえ決まっていれば、進め方は任せてほしい。" },
+      { d: "autonomy", t: "詳しい手順が示されているほうが、働きやすい。", r: 1 },
+      { d: "growth", t: "業務時間外でも、仕事に関わる学習を続けたい。" },
+      { d: "growth", t: "厳しい内容でも、率直なフィードバックを歓迎する。" },
+      { d: "growth", t: "今のスキルで安定して働ければ、それで十分だ。", r: 1 },
+      { d: "customer", t: "顧客の課題を解決できたときに、最もやりがいを感じる。" },
+      { d: "customer", t: "仕事を通じて、社会の役に立っている実感がほしい。" },
+      { d: "customer", t: "仕事は、生活のための手段と割り切っている。", r: 1 }
+    ],
+    shinsotsu: [
+      { d: "basics", t: "先輩の指導を素直に受け入れて、基礎から身につけたい。" },
+      { d: "basics", t: "最初は地道な業務でも、成長につながると考えられる。" },
+      { d: "basics", t: "指導を受けるより、早く自分のやり方を確立したい。", r: 1 }
+    ],
+    chuto: [
+      { d: "adapt", t: "新しい職場のやり方は、まず理解してから改善を提案したい。" },
+      { d: "adapt", t: "前職のやり方と違っても、柔軟に切り替えられる。" },
+      { d: "adapt", t: "前職のやり方が正しいと思えば、周囲に合わせず通したい。", r: 1 }
+    ]
+  },
+
+  defaultTarget: {
+    shinsotsu: { challenge: 65, team: 75, speed: 60, autonomy: 55, growth: 80, customer: 70, basics: 80 },
+    chuto: { challenge: 70, team: 65, speed: 70, autonomy: 75, growth: 70, customer: 70, adapt: 70 }
+  },
+
+  abilitySections: ["言語", "論理", "数的"],
+  ability: {
+    shinsotsu: {
+      limit: 720,
+      items: [
+        { s: "言語", q: "次の語の対義語として最も適切なものを選んでください。\n「具体」", o: ["現実", "抽象", "詳細", "実際"], a: 1 },
+        { s: "言語", q: "「懸念」と意味が最も近い語を選んでください。", o: ["期待", "同意", "不安", "反対"], a: 2 },
+        { s: "言語", q: "空欄に入る最も適切な語句を選んでください。\n「彼の提案は一見魅力的だが、実行に移すには課題が（　）。」", o: ["皆無だ", "山積している", "見当たらない", "解消済みだ"], a: 1 },
+        { s: "言語", q: "次の文章の趣旨として最も適切なものを選んでください。\n「会議の目的は結論を出すことであり、意見を出し尽くすことではない。参加者が事前に論点を整理しておけば、時間は大幅に短縮できる。」", o: ["会議では意見を出し尽くすべきだ", "会議は短いほどよい", "事前の論点整理が会議の効率を高める", "結論は会議の後で出すべきだ"], a: 2 },
+        { s: "論理", q: "「すべてのAはBである」「すべてのBはCである」が正しいとき、確実に言えるものを選んでください。", o: ["すべてのCはAである", "すべてのBはAである", "あるCはAではない", "すべてのAはCである"], a: 3 },
+        { s: "論理", q: "次の数列の空欄に入る数を選んでください。\n2, 6, 12, 20, 30, （　）", o: ["40", "42", "44", "46"], a: 1 },
+        { s: "論理", q: "甲、乙、丙の3人が100m走をした。甲は乙より速く、丙は甲より遅かった。確実に言えるものを選んでください。", o: ["乙が最も遅い", "丙が最も遅い", "乙は丙より速い", "甲が最も速い"], a: 3 },
+        { s: "論理", q: "「雨が降れば、試合は中止になる」が正しいとき、確実に言えるものを選んでください。", o: ["試合が中止なら、雨が降っている", "試合が中止にならなければ、雨は降っていない", "雨が降らなければ、試合は行われる", "試合が行われれば、雨が降っていた"], a: 1 },
+        { s: "数的", q: "定価2,500円の商品を2割引で買った。支払う金額はいくらか。", o: ["1,800円", "2,100円", "2,000円", "2,250円"], a: 2 },
+        { s: "数的", q: "時速4kmで1時間30分歩いた。進んだ距離は何kmか。", o: ["5km", "6km", "7km", "8km"], a: 1 },
+        { s: "数的", q: "兄と弟の所持金の比は3：2で、合計は5,000円である。兄の所持金はいくらか。", o: ["2,000円", "2,500円", "3,500円", "3,000円"], a: 3 },
+        { s: "数的", q: "売上が昨年の80万円から、今年は100万円になった。増加率は何%か。", o: ["20%", "25%", "30%", "125%"], a: 1 }
+      ]
+    },
+    chuto: {
+      limit: 720,
+      items: [
+        { s: "言語", q: "ビジネス文書の「ご査収ください」の意味として最も適切なものを選んでください。", o: ["返送してください", "内容を確認して受け取ってください", "破棄してください", "転送してください"], a: 1 },
+        { s: "言語", q: "「先日の依頼の件は、ご放念ください」の意味として最も適切なものを選んでください。", o: ["至急対応してほしい", "承認してほしい", "依頼は取り下げるので、気にかけなくてよい", "内容を再検討してほしい"], a: 2 },
+        { s: "言語", q: "次の文章から確実に言えるものを選んでください。\n「顧客からの問い合わせ件数は前年比で増加したが、解決までの平均日数は短縮した。これは一次対応の担当者が増えたためと分析されている。」", o: ["問い合わせ件数は減った", "担当者の人数は減った", "顧客満足度が上がった", "解決までの平均日数は前年より短くなった"], a: 3 },
+        { s: "言語", q: "次の文章の主張として最も適切なものを選んでください。\n「報告は、結論、根拠、今後の対応の順に伝えると相手が判断しやすい。経緯を時系列で話し始めると、要点が伝わるまでに時間がかかる。」", o: ["経緯は省略してはならない", "報告は口頭より文書がよい", "報告は結論から述べるのがよい", "判断は相手に任せるべきだ"], a: 2 },
+        { s: "論理", q: "「A案を採用するなら、B部署の承認が必要」が正しい。B部署の承認が得られなかったとき、確実に言えるものを選んでください。", o: ["A案は採用できる", "A案は採用できない", "C案が必要になる", "承認は不要だった"], a: 1 },
+        { s: "論理", q: "次の数列の空欄に入る数を選んでください。\n3, 5, 9, 17, 33, （　）", o: ["49", "57", "66", "65"], a: 3 },
+        { s: "論理", q: "4つの案A〜Dのコストについて、AはBより高く、CはAより高く、DはBより低い。最もコストが高い案はどれか。", o: ["A", "B", "C", "D"], a: 2 },
+        { s: "論理", q: "三人が会議で発言した。田中さんは佐藤さんより先に発言し、佐藤さんは鈴木さんより先に発言した。確実に言えるものを選んでください。", o: ["田中さんが最後に発言した", "佐藤さんが最初に発言した", "佐藤さんが最後に発言した", "鈴木さんは田中さんより後に発言した"], a: 3 },
+        { s: "数的", q: "原価600円の商品に原価の40%の利益を見込んで定価をつけ、定価の10%引きで販売した。1個あたりの利益はいくらか。", o: ["84円", "140円", "156円", "240円"], a: 2 },
+        { s: "数的", q: "今年の売上は前年の120%で、1,800万円だった。前年の売上はいくらか。", o: ["1,400万円", "1,500万円", "1,560万円", "2,160万円"], a: 1 },
+        { s: "数的", q: "ある作業を、Aさん1人では10日、Bさん1人では15日で終えられる。2人で一緒に行うと何日かかるか。", o: ["5日", "7日", "6日", "8日"], a: 2 },
+        { s: "数的", q: "固定費が月30万円、1個あたりの変動利益（売価−変動費）が1,500円のとき、損益分岐点となる月間販売個数はいくつか。", o: ["150個", "200個", "250個", "300個"], a: 1 }
+      ]
+    }
+  }
+};
+
+/* Core: helpers, plan building, scoring, capability setup. */
+const D = window.DATA;
+const App = {
+  caps: { db: null, user: null, downloads: null },
+  uid: null,
+  isAdmin: false,
+  target: JSON.parse(JSON.stringify(D.defaultTarget)),
+  results: null,
+  state: { view: "loading", track: null, name: "", ident: "", page: 0, ans: { p: [], c: [], a: [] }, deadline: 0, secs: 0, err: "", busy: false },
+  admin: { tab: "results", filter: "all", sel: null, confirmDel: null, draftTarget: null }
+};
+
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = (s, r) => (r || document).querySelector(s);
+const pad = (n) => String(n).padStart(2, "0");
+const fmtDate = (t) => { const d = new Date(t); return d.getFullYear() + "/" + pad(d.getMonth() + 1) + "/" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()); };
+const fmtSecs = (s) => Math.floor(s / 60) + "分" + pad(s % 60) + "秒";
+
+function toast(msg) {
+  const old = $(".toast"); if (old) old.remove();
+  const el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status"); el.textContent = msg;
+  document.body.appendChild(el); setTimeout(() => el.remove(), 2600);
+}
+
+/* Items are shown interleaved across dimensions so that neighbours measure different things. */
+function interleave(items) {
+  const groups = {}, order = [];
+  items.forEach((it, i) => { if (!groups[it.d]) { groups[it.d] = []; order.push(it.d); } groups[it.d].push(i); });
+  const out = []; let n = 0, more = true;
+  while (more) { more = false; order.forEach((d) => { if (groups[d][n] !== undefined) { out.push(groups[d][n]); more = true; } }); n++; }
+  return out;
+}
+function chunk(arr, size) { const out = []; for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size)); return out; }
+
+function buildPlan(track) {
+  const c = D.culture.common.concat(D.culture[track]);
+  const a = D.ability[track].items;
+  const pages = [];
+  chunk(interleave(D.personality), 5).forEach((ix) => pages.push({ kind: "p", part: "性格", ix }));
+  chunk(interleave(c), 7).forEach((ix) => pages.push({ kind: "c", part: "価値観", ix }));
+  chunk(a.map((_, i) => i), 4).forEach((ix) => pages.push({ kind: "a", part: "能力", ix }));
+  return { p: D.personality, c, a, pages };
+}
+
+function cultureDimsFor(track) { return D.cultureDims.common.concat(D.cultureDims[track] || []); }
+
+function scoreScale(items, ans, dimKeys) {
+  const out = {};
+  dimKeys.forEach((k) => {
+    let sum = 0, n = 0;
+    items.forEach((it, i) => { if (it.d !== k) return; const x = ans[i]; sum += it.r ? 6 - x : x; n++; });
+    out[k] = n ? Math.round(((sum / n) - 1) * 25) : null;
+  });
+  return out;
+}
+
+function scoreAbility(items, ans) {
+  const s = D.abilitySections.map(() => 0), n = D.abilitySections.map(() => 0);
+  items.forEach((it, i) => { const k = D.abilitySections.indexOf(it.s); n[k]++; if (ans[i] === it.a) s[k]++; });
+  return { s, n };
+}
+
+function targetFor(track) { return Object.assign({}, D.defaultTarget[track], (App.target && App.target[track]) || {}); }
+
+/* Closeness to the target profile: 100 minus the mean absolute gap across the culture dimensions. */
+function fitScore(doc) {
+  const t = targetFor(doc.track), dims = cultureDimsFor(doc.track);
+  let sum = 0, n = 0;
+  dims.forEach((d) => { if (doc.c && doc.c[d.k] != null && t[d.k] != null) { sum += Math.abs(doc.c[d.k] - t[d.k]); n++; } });
+  return n ? Math.round(100 - sum / n) : null;
+}
+const fitClass = (f) => (f == null ? "" : f >= 80 ? "fit-good" : f >= 65 ? "fit-mid" : "fit-low");
+const abilityTotal = (doc) => (doc.ab ? doc.ab.s.reduce((a, b) => a + b, 0) : 0);
+const abilityMax = (doc) => (doc.ab ? doc.ab.n.reduce((a, b) => a + b, 0) : 0);
+
+function withTimeout(p, ms) { return Promise.race([p, new Promise((r) => setTimeout(() => r(null), ms))]); }
+
+async function initCaps() {
+  const use = (n) => (window.claude && window.claude.use ? withTimeout(window.claude.use(n).catch(() => null), 5000) : Promise.resolve(null));
+  const [db, user, downloads] = await Promise.all([use("db"), use("user"), use("downloads")]);
+  App.caps = { db, user, downloads };
+  if (user) {
+    try { App.isAdmin = !!(await user.canEdit()); } catch (e) { App.isAdmin = false; }
+    try { App.uid = await user.id(); } catch (e) { App.uid = null; }
+  }
+}
+
+/* Candidate flow: intro, test pages, submit, done. */
+let timerId = null;
+
+function topbar(extra) {
+  return '<div class="topbar"><div class="brand"><i></i>適性診断</div><div class="row">' + (extra || "") + "</div></div>";
+}
+
+function renderIntro() {
+  const S = App.state, hashTrack = App.hashTrack;
+  const canSave = !!(App.caps.db && App.uid);
+  const trackPick = hashTrack
+    ? '<p><span class="chip accent">' + esc(D.tracks[hashTrack].label) + "</span></p>"
+    : '<div class="field"><label>受検区分</label><div class="seg" role="group" aria-label="受検区分">' +
+      Object.keys(D.tracks).map((k) => '<button type="button" data-act="track" data-v="' + k + '" aria-pressed="' + (S.track === k) + '">' + esc(D.tracks[k].label) + "</button>").join("") + "</div></div>";
+  const ready = S.track && S.name.trim() && S.ident.trim() && canSave;
+  const back = App.isAdmin ? '<button class="btn quiet" data-act="to-admin">管理画面に戻る</button>' : "";
+  return topbar(back) +
+    '<div class="wrap"><div class="card stack">' +
+    "<h1>適性診断</h1>" +
+    '<p class="muted">性格、仕事の進め方に関する価値観、基礎的な能力の3部構成です。所要時間は約25分です。能力検査だけ制限時間（12分）があり、他の部分に制限はありません。</p>' +
+    trackPick +
+    '<div class="field"><label for="f-name">氏名</label><input class="input" id="f-name" autocomplete="name" value="' + esc(S.name) + '"></div>' +
+    '<div class="field"><label for="f-ident">受検ID またはメールアドレス</label><input class="input" id="f-ident" autocomplete="email" value="' + esc(S.ident) + '"></div>' +
+    '<div class="notice">回答は採用選考の参考情報として、採用担当者が確認します。診断結果だけで合否を決めることはありません。正解を探さず、普段の自分に近いものを選んでください。</div>' +
+    (canSave ? "" : '<div class="notice">この画面では回答を保存できません。サインインしてから、もう一度開いてください。</div>') +
+    '<div class="row"><button class="btn primary" data-act="start" id="btn-start"' + (ready ? "" : " disabled") + ">検査を始める</button></div>" +
+    "</div></div>";
+}
+
+function pageNumberBase(plan, kind, page) {
+  let n = 0;
+  for (let i = 0; i < page; i++) if (plan.pages[i].kind === kind) n += plan.pages[i].ix.length;
+  return n;
+}
+
+function pageComplete() {
+  const S = App.state, pg = S.plan.pages[S.page];
+  return pg.ix.every((i) => S.ans[pg.kind][i] != null);
+}
+
+function renderTest() {
+  const S = App.state, plan = S.plan, pg = plan.pages[S.page], total = plan.pages.length;
+  const parts = ["性格", "価値観", "能力"];
+  const phases = '<div class="phases">' + parts.map((p) => (p === pg.part ? "<b>" + p + "</b>" : "<span>" + p + "</span>")).join("") + "</div>";
+  const timer = pg.kind === "a" ? '<div class="timer" id="timer" aria-live="off">' + fmtClock(remaining()) + "</div>" : "";
+  const base = pageNumberBase(plan, pg.kind, S.page);
+  let body = "";
+  pg.ix.forEach((i, n) => {
+    const num = base + n + 1;
+    if (pg.kind === "a") {
+      const it = plan.a[i];
+      body += '<div class="q"><div class="q-tag">' + esc(it.s) + " " + num + '</div><div class="q-text">' + esc(it.q) + '</div><div class="opts" role="radiogroup">' +
+        it.o.map((o, k) => '<div class="opt"><input type="radio" name="a:' + i + '" id="a-' + i + "-" + k + '" value="' + k + '"' + (S.ans.a[i] === k ? " checked" : "") + '><label for="a-' + i + "-" + k + '">' + esc(o) + "</label></div>").join("") + "</div></div>";
+    } else {
+      const it = plan[pg.kind][i];
+      body += '<div class="q"><div class="q-tag">Q' + num + '</div><div class="q-text">' + esc(it.t) + '</div><div class="scale" role="radiogroup" aria-label="Q' + num + '">' +
+        [1, 2, 3, 4, 5].map((v) => '<input type="radio" name="' + pg.kind + ":" + i + '" id="' + pg.kind + "-" + i + "-" + v + '" value="' + v + '"' + (S.ans[pg.kind][i] === v ? " checked" : "") + '><label for="' + pg.kind + "-" + i + "-" + v + '" title="' + D.likert[v - 1] + '">' + v + "</label>").join("") +
+        '</div><div class="scale-ends"><span>1 ' + D.likert[0] + "</span><span>5 " + D.likert[4] + "</span></div></div>";
+    }
+  });
+  const last = S.page === total - 1;
+  const canBack = S.page > 0 && !(pg.kind === "a" && plan.pages[S.page - 1].kind !== "a");
+  const confirmQuit = S.confirmQuit
+    ? '<div class="notice stack-sm" role="alertdialog" aria-label="診断の中断"><p><b>診断を中断しますか？</b> ここまでの回答は保存されず、最初の画面に戻ります。</p><div class="row"><button class="btn danger" data-act="quit-yes">中断して最初の画面に戻る</button><button class="btn" data-act="quit-no">続ける</button></div></div>'
+    : "";
+  return topbar(timer + '<button class="btn quiet" data-act="quit">中断する</button>') +
+    '<div class="wrap"><div class="card stack">' +
+    '<div class="progress"><div class="track"><div class="fill" style="width:' + Math.round((S.page / total) * 100) + '%"></div></div>' + phases + "</div>" +
+    confirmQuit +
+    "<div>" + body + "</div>" +
+    '<div class="pager"><button class="btn" data-act="back"' + (canBack ? "" : " hidden") + '>戻る</button><button class="btn primary" data-act="' + (last ? "submit" : "next") + '" id="btn-next"' + (pageComplete() ? "" : " disabled") + ">" + (last ? "回答を送信する" : "次へ") + "</button></div>" +
+    "</div></div>";
+}
+
+function renderSending() {
+  return topbar() + '<div class="wrap"><div class="card empty"><h3>回答を送信しています</h3><p>このまま少しお待ちください。</p></div></div>';
+}
+
+function renderError() {
+  return topbar() + '<div class="wrap"><div class="card stack"><h2>送信できませんでした</h2><p class="muted">' + esc(App.state.err) + '</p><div class="row"><button class="btn primary" data-act="retry">もう一度送信する</button></div></div></div>';
+}
+
+function renderDone() {
+  const S = App.state;
+  const msg = S.already
+    ? "この診断は、すでに受検済みです。再受検が必要な場合は、採用担当者にご連絡ください。"
+    : "回答を送信しました。ご協力ありがとうございました。この画面は閉じて構いません。";
+  const back = App.isAdmin ? '<div class="row"><button class="btn primary" data-act="to-admin">管理画面で結果を見る</button></div>' : "";
+  return topbar() + '<div class="wrap"><div class="card stack"><h2>' + (S.already ? "受検済みです" : "受検が完了しました") + '</h2><p class="muted">' + esc(App.isAdmin && !S.already ? "テスト受検として保存しました。結果は管理画面に表示されます。" : msg) + "</p>" + back + "</div></div>";
+}
+
+/* timer */
+function remaining() { return Math.max(0, Math.ceil((App.state.deadline - Date.now()) / 1000)); }
+function fmtClock(s) { return pad(Math.floor(s / 60)) + ":" + pad(s % 60); }
+function startTimer() {
+  const S = App.state;
+  if (!S.deadline) S.deadline = Date.now() + D.ability[S.track].limit * 1000;
+  if (timerId) return;
+  timerId = setInterval(() => {
+    const r = remaining(), el = $("#timer");
+    if (el) { el.textContent = fmtClock(r); el.classList.toggle("low", r <= 60); }
+    if (r <= 0) { clearInterval(timerId); timerId = null; submitAnswers(true); }
+  }, 1000);
+}
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+
+async function submitAnswers(timedOut) {
+  const S = App.state;
+  if (S.busy) return;
+  S.busy = true; stopTimer(); S.view = "sending"; render();
+  const plan = S.plan;
+  const secs = S.deadline ? Math.min(D.ability[S.track].limit, D.ability[S.track].limit - remaining()) : 0;
+  const raw = (arr, n) => Array.from({ length: n }, (_, i) => (arr[i] == null ? "-" : arr[i])).join("");
+  const doc = {
+    name: S.name.trim(), ident: S.ident.trim(), track: S.track, at: Date.now(), sample: false, preview: App.isAdmin,
+    p: scoreScale(plan.p, S.ans.p, D.personalityDims.map((d) => d.k)),
+    c: scoreScale(plan.c, S.ans.c, cultureDimsFor(S.track).map((d) => d.k)),
+    ab: Object.assign(scoreAbility(plan.a, S.ans.a), { secs, timedOut: !!timedOut }),
+    raw: { p: raw(S.ans.p, plan.p.length), c: raw(S.ans.c, plan.c.length), a: raw(S.ans.a, plan.a.length) }
+  };
+  try {
+    await App.caps.db.doc("results/" + App.uid).set(doc);
+    S.busy = false; S.view = "done"; S.already = false;
+  } catch (e) {
+    S.busy = false; S.view = "error";
+    S.err = e && e.code === "quota_exceeded" ? "保存の上限に達しています。採用担当者にご連絡ください。" : "通信に失敗しました。回答は画面に残っています。もう一度お試しください。";
+  }
+  render();
+}
+
+function candidateClick(act, el) {
+  const S = App.state;
+  if (act === "track") { S.track = el.dataset.v; render(); return true; }
+  if (act === "start") {
+    S.plan = buildPlan(S.track); S.page = 0; S.ans = { p: [], c: [], a: [] }; S.deadline = 0; S.view = "test"; render(); window.scrollTo(0, 0); return true;
+  }
+  if (act === "next") {
+    if (!pageComplete()) return true;
+    S.page++; if (S.plan.pages[S.page].kind === "a") startTimer(); render(); window.scrollTo(0, 0); return true;
+  }
+  if (act === "back") { S.page--; render(); window.scrollTo(0, 0); return true; }
+  if (act === "submit") { if (pageComplete()) submitAnswers(false); return true; }
+  if (act === "retry") { S.view = "test"; submitAnswers(false); return true; }
+  if (act === "to-admin") { S.view = "admin"; stopTimer(); render(); return true; }
+  if (act === "quit") { S.confirmQuit = true; render(); const b = $('[data-act="quit-no"]'); if (b) b.focus(); return true; }
+  if (act === "quit-no") { S.confirmQuit = false; render(); return true; }
+  if (act === "quit-yes") {
+    stopTimer();
+    Object.assign(S, { view: "intro", track: App.hashTrack, name: "", ident: "", page: 0, plan: null, ans: { p: [], c: [], a: [] }, deadline: 0, secs: 0, err: "", busy: false, confirmQuit: false });
+    render(); window.scrollTo(0, 0); return true;
+  }
+  return false;
+}
+
+function candidateInput(e) {
+  const S = App.state, t = e.target;
+  if (t.id === "f-name") S.name = t.value;
+  else if (t.id === "f-ident") S.ident = t.value;
+  else if (t.type === "radio" && t.name.indexOf(":") > 0) {
+    const [kind, idx] = t.name.split(":"); S.ans[kind][Number(idx)] = Number(t.value);
+    const b = $("#btn-next"); if (b) b.disabled = !pageComplete();
+    return;
+  } else return;
+  const s = $("#btn-start"); if (s) s.disabled = !(S.track && S.name.trim() && S.ident.trim() && App.caps.db && App.uid);
+}
+
+/* Hiring-team screens: results list and detail, target profile, guide, CSV export. */
+const ALL_CULTURE = D.cultureDims.common.concat(D.cultureDims.shinsotsu, D.cultureDims.chuto);
+
+function adminTopbar() {
+  return topbar('<button class="btn" data-act="preview">受検画面を試す</button>');
+}
+
+function tabsHtml() {
+  const A = App.admin, t = [["results", "受検結果"], ["target", "目標プロフィール"], ["guide", "使い方と注意"]];
+  return '<div class="tabs" role="tablist">' + t.map((x) => '<button role="tab" data-act="tab" data-v="' + x[0] + '" aria-selected="' + (A.tab === x[0]) + '">' + x[1] + "</button>").join("") + "</div>";
+}
+
+function tagsFor(r) {
+  return (r.sample ? ' <span class="chip warn">サンプル</span>' : "") + (r.preview ? ' <span class="chip warn">テスト受検</span>' : "");
+}
+
+function meter(v, target) {
+  return '<div class="meter"><div class="v" style="width:' + v + '%"></div>' + (target != null ? '<div class="t" style="left:' + target + '%"></div>' : "") + "</div>";
+}
+
+function detailHtml(r) {
+  const A = App.admin, f = fitScore(r), tgt = targetFor(r.track);
+  const ab = r.ab || { s: [0, 0, 0], n: [4, 4, 4], secs: 0 };
+  const abRows = D.abilitySections.map((s, i) => '<div><div class="bar-head"><span>' + s + '</span><span class="stat">' + ab.s[i] + " / " + ab.n[i] + "</span></div>" + meter(Math.round((ab.s[i] / ab.n[i]) * 100)) + "</div>").join("");
+  const pRows = D.personalityDims.map((d) => {
+    const v = r.p ? r.p[d.k] : null; if (v == null) return "";
+    return '<div><div class="bar-head"><span>' + d.name + '</span><span class="stat">' + v + "</span></div>" + meter(v) + '<div class="meter-ends"><span>' + d.lo + "</span><span>" + d.hi + "</span></div></div>";
+  }).join("");
+  const cRows = cultureDimsFor(r.track).map((d) => {
+    const v = r.c ? r.c[d.k] : null; if (v == null) return "";
+    const diff = v - tgt[d.k];
+    return '<div><div class="bar-head"><span>' + d.name + '</span><span class="stat">' + v + ' <span class="muted small">目標 ' + tgt[d.k] + "（" + (diff >= 0 ? "+" : "−") + Math.abs(diff) + "）</span></span></div>" + meter(v, tgt[d.k]) + "</div>";
+  }).join("");
+  const confirming = A.confirmDel === r.id;
+  return '<div class="card stack">' +
+    '<div class="row between"><div><h2>' + esc(r.name || "（氏名なし）") + "</h2><p class=\"muted small\">" + esc(r.ident || "") + "</p></div>" +
+    '<button class="btn quiet" data-act="close-detail" aria-label="詳細を閉じる">閉じる</button></div>' +
+    '<div class="row"><span class="chip accent">' + esc((D.tracks[r.track] || {}).label || "") + "</span>" + tagsFor(r) + '<span class="muted small num">' + fmtDate(r.at) + "</span></div>" +
+    '<div class="row"><div class="grow"><div class="muted small">能力検査</div><div class="stat" style="font-size:22px">' + abilityTotal(r) + " / " + abilityMax(r) + '</div></div><div class="grow"><div class="muted small">目標プロフィールとの近さ</div><div class="stat ' + fitClass(f) + '" style="font-size:22px">' + (f == null ? "-" : f) + "</div></div></div>" +
+    "<h3>能力" + (ab.timedOut ? ' <span class="chip warn">時間切れ</span>' : "") + ' <span class="muted small num">所要 ' + fmtSecs(ab.secs || 0) + "</span></h3>" + '<div class="bars">' + abRows + "</div>" +
+    "<h3>性格（0〜100）</h3>" + '<div class="bars">' + pRows + "</div>" +
+    "<h3>価値観・カルチャー</h3>" + '<div class="legend"><span><i></i>本人の回答</span><span><i class="t"></i>目標</span></div><div class="bars">' + cRows + "</div>" +
+    '<div class="notice">設問は、性格が公開尺度の日本語訳、価値観と能力が自作です。いずれも入社後の活躍との関連は検証されていません。面接を補う参考情報として使い、合否の判断はこの結果だけで行わないでください。</div>' +
+    '<div class="row">' + (confirming
+      ? '<span class="small">この結果を削除します。元に戻せません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(r.id) + '">削除する</button><button class="btn" data-act="del-no">やめる</button>'
+      : '<button class="btn danger" data-act="del" data-id="' + esc(r.id) + '">この結果を削除</button>') + "</div></div>";
+}
+
+function resultsTab() {
+  const A = App.admin, all = App.results;
+  if (all == null) return '<div class="card empty"><p>読み込んでいます</p></div>';
+  const list = all.filter((r) => A.filter === "all" || r.track === A.filter);
+  const sel = list.find((r) => r.id === A.sel);
+  const bar = '<div class="row between" style="margin-bottom:14px"><div class="seg" role="group" aria-label="区分で絞り込み">' +
+    [["all", "すべて"], ["shinsotsu", "新卒"], ["chuto", "中途"]].map((x) => '<button data-act="filter" data-v="' + x[0] + '" aria-pressed="' + (A.filter === x[0]) + '">' + x[1] + "</button>").join("") + "</div>" +
+    '<button class="btn" data-act="csv"' + (list.length ? "" : " disabled") + ">CSVで書き出す</button></div>";
+  if (!list.length) {
+    return bar + '<div class="card flat empty"><h3>まだ受検結果がありません</h3><p>候補者が検査を送信すると、ここに一覧が表示されます。まずは「受検画面を試す」で一度受けてみると、結果の見え方を確認できます。</p></div>';
+  }
+  const rows = list.map((r) => {
+    const f = fitScore(r);
+    return '<tr data-act="select" data-id="' + esc(r.id) + '" aria-selected="' + (r.id === A.sel) + '"><td class="num small">' + fmtDate(r.at) + "</td><td>" + esc(r.name || "（氏名なし）") + tagsFor(r) + "</td><td>" + esc((D.tracks[r.track] || {}).short || "") + '</td><td class="r stat">' + abilityTotal(r) + "/" + abilityMax(r) + '</td><td class="r stat ' + fitClass(f) + '">' + (f == null ? "-" : f) + "</td></tr>";
+  }).join("");
+  const table = '<div class="card tablewrap" style="padding:8px"><table><thead><tr><th>受検日時</th><th>氏名</th><th>区分</th><th class="r">能力</th><th class="r">近さ</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
+  return bar + '<div class="split"><div>' + table + "</div><div>" + (sel ? detailHtml(sel) : '<div class="card flat empty"><p>一覧から候補者を選ぶと、詳細が表示されます。</p></div>') + "</div></div>";
+}
+
+function targetTab() {
+  const A = App.admin;
+  if (!A.draftTarget) A.draftTarget = JSON.parse(JSON.stringify({ shinsotsu: targetFor("shinsotsu"), chuto: targetFor("chuto") }));
+  const block = (track) => '<div class="card stack"><h2>' + D.tracks[track].label + "</h2>" + cultureDimsFor(track).map((d) => {
+    const v = A.draftTarget[track][d.k];
+    return '<div class="stack-sm"><div><label for="t-' + track + "-" + d.k + '"><b>' + d.name + '</b></label><div class="muted small">' + d.note + '</div></div><div class="slider-row"><input type="range" min="0" max="100" step="5" id="t-' + track + "-" + d.k + '" data-track="' + track + '" data-dim="' + d.k + '" value="' + v + '"><span class="stat" id="tv-' + track + "-" + d.k + '">' + v + "</span></div></div>";
+  }).join("") + "</div>";
+  return '<div class="stack"><p class="muted">自社が求める傾向を、0（弱い）から100（強い）で設定します。受検者の価値観との差が小さいほど、結果画面の「近さ」が高くなります。設定は保存後すぐに、過去の結果にも反映されます。</p>' +
+    '<div class="split">' + block("shinsotsu") + block("chuto") + "</div>" +
+    '<div class="row"><button class="btn primary" data-act="save-target">目標を保存</button><button class="btn" data-act="reset-target">初期値に戻す</button></div></div>';
+}
+
+function guideTab() {
+  return '<div class="split"><div class="card stack"><h2>受検してもらう手順</h2>' +
+    "<p>このページのリンクを候補者に共有します。候補者は氏名と受検IDを入力し、性格・価値観・能力の順に回答します。回答は送信と同時に、この画面の一覧に追加されます。</p>" +
+    '<p>リンクの末尾に <span class="num">#shinsotsu</span>（新卒）または <span class="num">#chuto</span>（中途）を付けると、受検区分があらかじめ決まった状態で開きます。</p>' +
+    '<div class="notice">回答を保存するには、候補者が共有メニューで「閲覧のみ」より上の権限（Contributor）でこのページを開ける必要があります。権限が閲覧のみだと、回答は送信できません。</div></div>' +
+    '<div class="card stack"><h2>運用上の注意</h2>' +
+    "<p>結果は、面接を補う参考情報です。入社後の成果との関連は、まだ検証されていません。</p>" +
+    "<p>性格の設問は、パブリックドメインのIPIP（International Personality Item Pool）のビッグファイブ設問から20問を選び、日本語に訳したものです。翻訳の確認は済んでいません。価値観と能力の設問は自作です。</p>" +
+    "<p>性別、年齢、出身などで不利にならないか、職務と関係のない設問がないかを、実施前に確認してください。性格の結果を、心身の状態の判断に使わないでください。</p>" +
+    "<p>氏名や回答は個人情報です。利用目的の説明、閲覧できる人の限定、保管期間の設定が必要です。不要になった結果は、詳細画面から削除できます。</p></div></div>";
+}
+
+function renderAdmin() {
+  const A = App.admin;
+  const body = A.tab === "results" ? resultsTab() : A.tab === "target" ? targetTab() : guideTab();
+  return '<div class="wrap wide">' + adminTopbar() + "<h1 style=\"margin-bottom:16px\">採用診断の管理</h1>" + tabsHtml() + body + "</div>";
+}
+
+/* CSV export */
+function csvCell(v) {
+  if (v == null) return "";
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+async function exportCsv() {
+  const list = App.results.filter((r) => App.admin.filter === "all" || r.track === App.admin.filter);
+  const head = ["受検日時", "氏名", "受検ID", "区分", "種別", "言語", "論理", "数的", "能力合計", "能力満点", "所要秒", "時間切れ"]
+    .concat(D.personalityDims.map((d) => d.name), ALL_CULTURE.map((d) => d.name), ["目標との近さ"]);
+  const rows = list.map((r) => {
+    const ab = r.ab || { s: [], n: [], secs: 0 };
+    return [fmtDate(r.at), r.name, r.ident, (D.tracks[r.track] || {}).short, r.sample ? "サンプル" : r.preview ? "テスト" : "本番", ab.s[0], ab.s[1], ab.s[2], abilityTotal(r), abilityMax(r), ab.secs, ab.timedOut ? "はい" : ""]
+      .concat(D.personalityDims.map((d) => (r.p || {})[d.k]), ALL_CULTURE.map((d) => (r.c || {})[d.k]), [fitScore(r)]);
+  });
+  const text = "﻿" + [head].concat(rows).map((row) => row.map(csvCell).join(",")).join("\r\n");
+  if (!App.caps.downloads) { toast("この環境ではファイルを保存できません"); return; }
+  try {
+    await App.caps.downloads.save({ filename: "適性診断_結果_" + new Date().toISOString().slice(0, 10) + ".csv", data: text });
+    toast("CSVを書き出しました");
+  } catch (e) { if (!e || e.code !== "declined") toast("書き出せませんでした"); }
+}
+
+async function saveTarget() {
+  try {
+    await App.caps.db.doc("config/target").set(JSON.parse(JSON.stringify(App.admin.draftTarget)));
+    toast("目標プロフィールを保存しました");
+  } catch (e) { toast("保存できませんでした。もう一度お試しください"); }
+}
+
+async function deleteResult(id) {
+  try { await App.caps.db.doc("results/" + id).delete(); App.admin.confirmDel = null; if (App.admin.sel === id) App.admin.sel = null; toast("削除しました"); }
+  catch (e) { toast("削除できませんでした"); }
+  render();
+}
+
+function adminClick(act, el) {
+  const A = App.admin;
+  if (act === "tab") { A.tab = el.dataset.v; render(); return true; }
+  if (act === "filter") { A.filter = el.dataset.v; render(); return true; }
+  if (act === "select") { A.sel = el.dataset.id; A.confirmDel = null; render(); return true; }
+  if (act === "close-detail") { A.sel = null; render(); return true; }
+  if (act === "csv") { exportCsv(); return true; }
+  if (act === "del") { A.confirmDel = el.dataset.id; render(); return true; }
+  if (act === "del-no") { A.confirmDel = null; render(); return true; }
+  if (act === "del-yes") { deleteResult(el.dataset.id); return true; }
+  if (act === "save-target") { saveTarget(); return true; }
+  if (act === "reset-target") { A.draftTarget = JSON.parse(JSON.stringify(D.defaultTarget)); render(); toast("初期値に戻しました。保存すると反映されます"); return true; }
+  if (act === "preview") {
+    const S = App.state; S.view = "intro"; S.track = App.hashTrack || S.track; render(); window.scrollTo(0, 0); return true;
+  }
+  return false;
+}
+
+function adminInput(e) {
+  const t = e.target;
+  if (t.type === "range" && t.dataset.dim) {
+    const v = Number(t.value); App.admin.draftTarget[t.dataset.track][t.dataset.dim] = v;
+    const o = $("#tv-" + t.dataset.track + "-" + t.dataset.dim); if (o) o.textContent = v;
+  }
+}
+
+/* Main: rendering switch, events, admin subscriptions, startup. */
+App.hashTrack = ["shinsotsu", "chuto"].indexOf(location.hash.slice(1)) >= 0 ? location.hash.slice(1) : null;
+
+function render() {
+  const v = App.state.view;
+  let html;
+  if (v === "loading") html = '<div class="wrap"><div class="card empty"><p>読み込んでいます</p></div></div>';
+  else if (v === "admin") html = renderAdmin();
+  else if (v === "intro") html = renderIntro();
+  else if (v === "test") html = renderTest();
+  else if (v === "sending") html = renderSending();
+  else if (v === "error") html = renderError();
+  else html = renderDone();
+  $("#app").innerHTML = html;
+}
+
+function subscribeAdmin() {
+  const db = App.caps.db;
+  if (!db) { App.results = []; return; }
+  db.collection("results").orderBy("at", "desc").limit(500).onSnapshot(
+    (snap) => { App.results = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())); if (App.state.view === "admin") render(); },
+    () => { App.results = []; if (App.state.view === "admin") render(); }
+  );
+  db.doc("config/target").onSnapshot(
+    (s) => {
+      if (s.exists) App.target = s.data();
+      if (App.admin.tab !== "target") App.admin.draftTarget = null;
+      if (App.state.view === "admin") render();
+    },
+    () => {}
+  );
+}
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el || el.disabled) return;
+  const act = el.dataset.act;
+  if (candidateClick(act, el)) return;
+  adminClick(act, el);
+});
+document.addEventListener("input", (e) => { candidateInput(e); adminInput(e); });
+document.addEventListener("change", (e) => { if (e.target.type === "radio") candidateInput(e); });
+
+(async function start() {
+  render();
+  await initCaps();
+  const S = App.state;
+  S.track = App.hashTrack;
+  if (App.isAdmin) {
+    S.view = "admin"; App.results = null; subscribeAdmin();
+  } else {
+    S.view = "intro";
+    if (App.caps.db && App.uid) {
+      try {
+        const s = await App.caps.db.doc("results/" + App.uid).get();
+        if (s.exists) { S.view = "done"; S.already = true; }
+      } catch (e) { /* the intro still works; submit reports any problem */ }
+    }
+  }
+  render();
+})();
+
+</script>
